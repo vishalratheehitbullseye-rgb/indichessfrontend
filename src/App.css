@@ -1,17 +1,5 @@
-.App {
-  text-align: center;
-}
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
 
 .App-header {
   background-color: #282c34;
@@ -24,15 +12,162 @@
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+/* Global Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+h2 {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+a {
+  text-decoration: none;
+  color: #4CAF50;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.home-card{
+  max-width: 400px;
+}
+
+/* Styling the Login Card */
+.login-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  width: 100%;
+  text-align: center;
+}
+
+.login-card .input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  font-size: 14px;
+  color: #555;
+  display: block;
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.simple-auth-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-bottom: 20px;
+}
+
+
+.simple-auth-btn:hover {
+  background-color: #45a049;
+}
+
+.oauth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.oauth-buttons a {
+  text-decoration: none;
+}
+
+.oauth-buttons button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-google {
+  background-color: #db4437;
+  color: white;
+}
+
+.btn-google:hover {
+  background-color: #c1351d;
+}
+
+.btn-github {
+  background-color: #333;
+  color: white;
+}
+
+.btn-github:hover {
+  background-color: #1b1b1b;
+}
+
+.signup-link {
+  font-size: 14px;
+  margin-top: 20px;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.signup-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  width: 100%;
+  text-align: center;
+}
+
+.signup-card .input-group {
+  margin-bottom: 20px;
+}
+
+.login-link {
+  font-size: 14px;
+  margin-top: 20px;
+}
+
+.login-link .btn-login {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.login-link .btn-login:hover {
+  background-color: #45a049;
 }
