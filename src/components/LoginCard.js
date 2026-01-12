@@ -17,11 +17,17 @@ function LoginCard({ handleToggleSignup }) {
       const response = await axios.post("http://localhost:8080/login", {
         username,
         password,
+        // withCredentials: true
       });
 
       // If login is successful, redirect to home
-      if (response.status === 200) {
+      if (response) {
+
+        console.log(response);
         navigate("/home");
+      }
+      else{
+        console.log("Not Auth");
       }
     } catch (err) {
       setError("Invalid username or password");

@@ -4,17 +4,17 @@ import SignupCard from "./components/SignUpCard";
 import HomeCard from "./pages/HomeCard";
 import HomePage from "./pages/Home";
 import './App.css';
+import Game from "./pages/Game";
 
 
 function App() {
   return (
     <Router>
       <Routes>
-      {/* <Route path="/" element={<LoginCard />} /> */}
-      {/* * <Route path="/" element={<SignupCard />} /> */}
       <Route path="/" element={<HomeCard />} />
       <Route path="/home" element={<HomePage />} />
-      </Routes>
+      <Route path="/game" element={<Game />} />
+      </Routes> 
     </Router>
   );
 }

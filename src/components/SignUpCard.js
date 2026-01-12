@@ -4,7 +4,7 @@ import axios from "axios";
 function SignupCard({ handleToggleSignup }) {
 
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
+  const [emailId, setEmailId] = useState("");
   const [password, setPassword] = useState("");
   const [country, setCountry] = useState("");
   const [error, setError] = useState("");
@@ -16,14 +16,14 @@ function SignupCard({ handleToggleSignup }) {
       // Send signup request to backend
       const response = await axios.post("http://localhost:8080/signup", {
         username,
-        email,
+        emailId,
         password,
         country,
       });
 
       // If signup is successful, redirect to login or home
       if (response.status === 201) {
-        console.log("Show login");
+        // console.log("Show login");
         handleToggleSignup();
       }
     } catch (err) {
@@ -70,8 +70,8 @@ function SignupCard({ handleToggleSignup }) {
           <input
             type="email"
             id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={emailId}
+            onChange={(e) => setEmailId(e.target.value)}
             placeholder="Enter your email"
             required
           />

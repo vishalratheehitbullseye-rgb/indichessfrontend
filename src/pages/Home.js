@@ -1,27 +1,24 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; 
 import axios from "axios";
+import SideNav from "../components/SideNav";
+import Header from "../components/Header";
+import GameInfo from "../components/game-page-components/GameInfo";
 
 function HomePage() {
-  const [username, setUsername] = useState("");
-
-  useEffect(() => {
-    // Fetch username from the backend (JWT will be sent automatically via cookies)
-    axios
-      .get("http://localhost:8080/user/username", {
-        withCredentials: true,  // Important to send cookies along with the request
-      })
-      .then((response) => {
-        setUsername(response.data.username);  // Get the username from the response
-      })
-      .catch((error) => {
-        console.error("Error fetching username", error);
-      });
-  }, []);
 
   return (
-    <div className="home-page">
-      <h1>Hello, {username ? username : "Guest"}</h1>
+    <div className="app-container">
+      <SideNav /> {/* Render the SideNav */}
+      <div className="main-container">
+        <Header />
+        <div className="game-info-container">
+          <GameInfo />
+        </div>
+      </div>
+      
     </div>
+    
   );
 }
 
