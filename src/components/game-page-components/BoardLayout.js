@@ -1,18 +1,38 @@
 import React from "react";
-// import { useState } from "react";
 import Player from "./Player";
 import Board from "./Board";
 import "../component-styles/BoardLayout.css";
 
-const BoardLayout = ({addMove}) => {
-  
-  
+const BoardLayout = ({ 
+  addMove, 
+  sendMove, 
+  opponentMove, // New prop
+  playerColor, 
+  isMyTurn, 
+  matchId,
+  isConnected 
+}) => {
 
   return (
     <div className="board-layout-main">
-      <Player />
-      <Board addMove={addMove}/>
-      <Player />
+      <Player 
+        isOpponent={true}
+        playerColor={playerColor === 'white' ? 'black' : 'white'}
+        matchId={matchId}
+      />
+      <Board 
+        addMove={addMove}
+        sendMove={sendMove}
+        opponentMove={opponentMove} // Pass to Board
+        playerColor={playerColor}
+        isMyTurn={isMyTurn}
+        isConnected={isConnected}
+      />
+      <Player 
+        isOpponent={false}
+        playerColor={playerColor}
+        matchId={matchId}
+      />
     </div>
   );
 };

@@ -13,7 +13,7 @@ function App() {
       <Routes>
       <Route path="/" element={<HomeCard />} />
       <Route path="/home" element={<HomePage />} />
-      <Route path="/game" element={<Game />} />
+      <Route path="/game/:matchId" element={<Game />} /> 
       </Routes> 
     </Router>
   );

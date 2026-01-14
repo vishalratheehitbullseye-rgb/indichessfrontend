@@ -84,6 +84,39 @@
   cursor: grab;  
 }
 
+/* Connection indicator styling */
+.connection-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.status-dot {
+  font-size: 16px;
+}
+
+.status-dot.connected {
+  color: #28a745;
+}
+
+.status-dot.disconnected {
+  color: #dc3545;
+}
+
+.status-text {
+  color: #333;
+}
+
+.status-text strong {
+  color: #007bff;
+}
+
 .square[draggable="true"]:active {
   cursor: grabbing;  
 }
