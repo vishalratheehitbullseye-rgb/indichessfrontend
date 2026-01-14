@@ -14,10 +14,11 @@ function LoginCard({ handleToggleSignup }) {
 
     try {
       // Send login request to backend
-      const response = await axios.post("http://localhost:8080/login", {
+      const response = await axios.post("https://localhost:8080/login", {
         username,
         password,
-        // withCredentials: true
+        withCredentials: true
+        
       });
 
       // If login is successful, redirect to home

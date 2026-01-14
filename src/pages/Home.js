@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; 
-import axios from "axios";
 import SideNav from "../components/SideNav";
 import Header from "../components/Header";
 import GameInfo from "../components/game-page-components/GameInfo";
 
 function HomePage() {
-
+  // console.log(Response);
   return (
     <div className="app-container">
       <SideNav /> {/* Render the SideNav */}

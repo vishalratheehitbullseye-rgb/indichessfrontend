@@ -21,8 +21,9 @@ function SignupCard({ handleToggleSignup }) {
         country,
       });
 
+      console.log(response);
       // If signup is successful, redirect to login or home
-      if (response.status === 201) {
+      if (response.status === 200) {
         // console.log("Show login");
         handleToggleSignup();
       }
