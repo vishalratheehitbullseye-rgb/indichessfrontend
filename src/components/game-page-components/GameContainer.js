@@ -4,7 +4,7 @@ import GamePlayControlContainer from "./GamePlayControlContainer";
 
 const GameContainer = ({ matchId, stompClient, isConnected, playerColor, initialGameData }) => {
   const [moves, setMoves] = useState([]);
-  const [isMyTurn, setIsMyTurn] = useState(initialGameData?.isMyTurn || (playerColor === 'white'));
+  const [isMyTurn, setIsMyTurn] = useState((playerColor === 'white'));
   const [gameStatus, setGameStatus] = useState(initialGameData?.status || "Game started");
   const [opponentMove, setOpponentMove] = useState(null); // To trigger board updates
   const moveSubscriptionRef = useRef(null);
@@ -19,17 +19,26 @@ const GameContainer = ({ matchId, stompClient, isConnected, playerColor, initial
         const moveData = JSON.parse(message.body);
         console.log("Received opponent move:", moveData);
         
-        // Set opponent move to trigger board update
-        setOpponentMove(moveData);
-        
-        // Update turn
-        setIsMyTurn(true);
-        setGameStatus("Your turn!");
-        
-        // Add move to history if provided
-        if (moveData.move) {
-          addMove(moveData.move);
-        }
+        // CRITICAL: Check if this is OPPONENT'S move, not our own echo
+            if (moveData.playerColor !== playerColor) {
+                console.log("👤 Processing OPPONENT'S move - it's now MY turn!");
+                
+                // Set opponent move to trigger board update
+                setOpponentMove(moveData);
+                
+                // It's opponent's move, so now it's MY turn
+                setIsMyTurn(true);
+                setGameStatus("Your turn!");
+                
+                // Add move to history
+                if (moveData.move) {
+                    addMove(moveData.move);
+                }
+            } else {
+                console.log("👤 Ignoring OWN move (echo) - keeping isMyTurn=false");
+                // This is our own move echo - DON'T change isMyTurn
+                // We already set isMyTurn=false when we sent the move
+            }
       } catch (error) {
         console.error("Error parsing move data:", error);
       }
@@ -41,9 +50,11 @@ const GameContainer = ({ matchId, stompClient, isConnected, playerColor, initial
         const state = JSON.parse(message.body);
         console.log("Game state update:", state);
         
-        if (state.isMyTurn !== undefined) {
-          setIsMyTurn(state.isMyTurn);
-        }
+        if (state.isWhiteTurn !== undefined) {
+                // Determine if it's my turn based on my color
+                const isMyTurnNow = (playerColor === 'white') ? state.isWhiteTurn : !state.isWhiteTurn;
+                setIsMyTurn(isMyTurnNow);
+            }
         if (state.status) {
           setGameStatus(state.status);
         }
@@ -81,7 +92,6 @@ const GameContainer = ({ matchId, stompClient, isConnected, playerColor, initial
       // Black's move - update last move
       setMoves((prevMoves) => {
         if (prevMoves.length === 0) return prevMoves;
-        
         const newMoves = [...prevMoves];
         const lastMove = { 
           ...newMoves[newMoves.length - 1], 

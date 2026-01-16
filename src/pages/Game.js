@@ -12,7 +12,7 @@ const Game = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState(null);
   const [gameData, setGameData] = useState(null);
-  const [playerColor, setPlayerColor] = useState('white');
+  const [playerColor, setPlayerColor] = useState();
 
   // Should be fetching from backend
   useEffect(() => {

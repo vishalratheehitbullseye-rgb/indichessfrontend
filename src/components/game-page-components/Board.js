@@ -91,12 +91,19 @@ const Board = ({
 
   // MODIFICATION 4: Update turn when isMyTurn changes
   useEffect(() => {
+    console.log(`🎮 Board turn update: playerColor=${playerColor}, isMyTurn=${isMyTurn}`);
+    
+    // Update isWhiteTurn based on player color and current turn
     if (playerColor === 'white') {
-      setIsWhiteTurn(isMyTurn);
+        // White player: isWhiteTurn = isMyTurn
+        setIsWhiteTurn(isMyTurn);
+        console.log(`   White player: isWhiteTurn = isMyTurn = ${isMyTurn}`);
     } else {
-      setIsWhiteTurn(!isMyTurn);
+        // Black player: isWhiteTurn = !isMyTurn (if it's black's turn, then whiteTurn is false)
+        setIsWhiteTurn(!isMyTurn);
+        console.log(`   Black player: isWhiteTurn = !isMyTurn = ${!isMyTurn}`);
     }
-  }, [isMyTurn, playerColor]);
+}, [isMyTurn, playerColor]);
 
   useEffect(() => {
     getMovesOfPlayer();  
@@ -108,9 +115,6 @@ useEffect(() => {
     if (opponentMove && opponentMove !== lastOpponentMove) {
         console.log("📥 New opponent move received:", opponentMove);
         
-        // Accept BOTH structures:
-        // 1. Nested: opponentMove.from && opponentMove.to
-        // 2. Flat: opponentMove.fromRow !== undefined && opponentMove.fromCol !== undefined
         
         const hasNestedStructure = opponentMove.from && opponentMove.to;
         const hasFlatStructure = opponentMove.fromRow !== undefined && opponentMove.fromCol !== undefined && 
@@ -141,10 +145,7 @@ const applyOpponentMove = (moveData) => {
         console.error("❌ moveData is undefined");
         return;
     }
-    
-    // Check for BOTH possible structures:
-    // 1. Flat fields: fromRow, fromCol, toRow, toCol (what backend sends)
-    // 2. Nested objects: from: {row, col}, to: {row, col} (what you expect)
+
     
     let from, to;
     
@@ -168,7 +169,7 @@ const applyOpponentMove = (moveData) => {
         return;
     }
     
-    const { piece, promotedTo, capturedPiece, castled, isPromotion, isEnPassant, board: newBoardFromData } = moveData;
+    const { piece, promotedTo, capturedPiece, castled, isPromotion, isEnPassant, board: newBoardFromData, isWhiteTurn } = moveData;
     
     // Validate coordinates
     if (from.row === undefined || from.col === undefined || 
@@ -297,8 +298,7 @@ const applyOpponentMove = (moveData) => {
     
     addMove(moveToAdd);
     
-    // Update turn locally
-    setIsWhiteTurn(!isWhiteTurn);
+    
     
     console.log("✅ Opponent move applied successfully");
 };
@@ -324,20 +324,6 @@ const createMoveNotation = (from, to, piece, capturedPiece, castled, board) => {
 };
 
   // MODIFICATION 7: Helper function to create move notation
-  // const createMoveNotation = (from, to, piece, capturedPiece, castled, newBoard) => {
-  //   const fromNotation = `${String.fromCharCode('a'.charCodeAt(0) + from.col)}${8-from.row}`;
-  //   const toNotation = `${String.fromCharCode('a'.charCodeAt(0) + to.col)}${8-to.row}`;
-    
-  //   if (castled) {
-  //     return to.col === 6 ? "O-O" : "O-O-O";
-  //   }
-    
-  //   if (capturedPiece) {
-  //     return `${piece.toLowerCase() === 'p' ? fromNotation[0] : piece}x${toNotation}`;
-  //   }
-    
-  //   return `${piece.toLowerCase() === 'p' ? '' : piece}${toNotation}`;
-  // };
 
   // ALL YOUR EXISTING FUNCTIONS - KEPT EXACTLY AS IS
   const getPieceIcon = (piece) => {
