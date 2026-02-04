@@ -1,0 +1,12 @@
+.clock {
+  font-family: 'Arial', sans-serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  background-color: #3e2723;  /* Dark brown background similar to the image */
+  padding: 10px 20px;
+  border-radius: 8px;
+  width: fit-content;
+  text-align: center;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+}

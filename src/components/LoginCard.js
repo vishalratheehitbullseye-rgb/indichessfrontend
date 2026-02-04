@@ -14,7 +14,7 @@ function LoginCard({ handleToggleSignup }) {
 
     try {
       // Send login request to backend
-      const response = await axios.post("https://localhost:8080/login", {
+      const response = await axios.post("http://localhost:8080/api/v1/auth/login", {
         username,
         password,
         withCredentials: true

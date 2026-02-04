@@ -9,16 +9,26 @@ const BoardLayout = ({
   opponentMove, // New prop
   playerColor, 
   isMyTurn, 
+  whiteTime,
+  blackTime,
   matchId,
-  isConnected 
+  isConnected ,
+  gameType,
+  isWhiteTurn
 }) => {
+
+  const isCurrentPlayerWhite = (playerColor === 'white');
 
   return (
     <div className="board-layout-main">
       <Player 
+        playerColor="black"
+        time={blackTime}
+        gameType={gameType}
+        isActive={!isWhiteTurn}
         isOpponent={true}
-        playerColor={playerColor === 'white' ? 'black' : 'white'}
         matchId={matchId}
+        isCurrentPlayer={!isCurrentPlayerWhite}
       />
       <Board 
         addMove={addMove}
@@ -27,11 +37,16 @@ const BoardLayout = ({
         playerColor={playerColor}
         isMyTurn={isMyTurn}
         isConnected={isConnected}
+        
       />
       <Player 
+        playerColor="white"
+        time={whiteTime}
+        gameType={gameType}
+        isActive={isWhiteTurn}
         isOpponent={false}
-        playerColor={playerColor}
         matchId={matchId}
+        isCurrentPlayer={isCurrentPlayerWhite}
       />
     </div>
   );

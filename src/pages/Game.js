@@ -14,19 +14,7 @@ const Game = () => {
   const [gameData, setGameData] = useState(null);
   const [playerColor, setPlayerColor] = useState();
 
-  // Should be fetching from backend
-  useEffect(() => {
-    fetch(`http://localhost:8080/game/${matchId}`, {
-    method: 'GET',
-    credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Game details response:", data);
-        setPlayerColor(data.playerColor); // Make sure this field exists
-        setGameData(data);
-    });
-  }, [matchId]);
+  
 
   useEffect(() => {
     if (!matchId) {
@@ -35,7 +23,7 @@ const Game = () => {
     }
 
     // To this:
-  fetch(`http://localhost:8080/game/${matchId}`, {
+  fetch(`http://localhost:8080/api/v1/match/game/${matchId}`, {
       method: 'GET',
       credentials: 'include'  // Important for cookies
   })
@@ -54,7 +42,7 @@ const Game = () => {
     });
 
     // WebSocket connection
-    const socket = new SockJS('http://localhost:8080/ws');
+    const socket = new SockJS('http://localhost:8080/api/v1/match/ws');
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
@@ -167,6 +155,8 @@ const Game = () => {
           isConnected={isConnected}
           playerColor={playerColor}
           initialGameData={gameData}
+          whiteTimeRemaining={gameData?.whiteTimeRemaining || 600}
+          blackTimeRemaining={gameData?.blackTimeRemaining || 600}
         />
       </div>
     </div>

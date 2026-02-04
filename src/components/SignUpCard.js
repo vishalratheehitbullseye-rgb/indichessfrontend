@@ -14,7 +14,7 @@ function SignupCard({ handleToggleSignup }) {
 
     try {
       // Send signup request to backend
-      const response = await axios.post("http://localhost:8080/signup", {
+      const response = await axios.post("http://localhost:8080/api/v1/auth/signup", {
         username,
         emailId,
         password,

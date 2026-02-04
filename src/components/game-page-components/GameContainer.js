@@ -2,12 +2,92 @@ import React, { useState, useEffect, useRef } from "react";
 import BoardLayout from "./BoardLayout";
 import GamePlayControlContainer from "./GamePlayControlContainer";
 
-const GameContainer = ({ matchId, stompClient, isConnected, playerColor, initialGameData }) => {
+const GameContainer = ({ 
+  matchId, 
+  stompClient, 
+  isConnected, 
+  playerColor, 
+  initialGameData,
+  gameType = 'rapid',
+  whiteTimeRemaining: initialWhiteTime = 600,
+  blackTimeRemaining: initialBlackTime = 600
+}) => {
   const [moves, setMoves] = useState([]);
-  const [isMyTurn, setIsMyTurn] = useState((playerColor === 'white'));
+  const [isMyTurn, setIsMyTurn] = useState(playerColor === 'white');
   const [gameStatus, setGameStatus] = useState(initialGameData?.status || "Game started");
-  const [opponentMove, setOpponentMove] = useState(null); // To trigger board updates
+  const [opponentMove, setOpponentMove] = useState(null);
+  
+  // Time state
+  const [whiteTime, setWhiteTime] = useState(initialWhiteTime);
+  const [blackTime, setBlackTime] = useState(initialBlackTime);
+  const [isWhiteTurn, setIsWhiteTurn] = useState(true);
+  
   const moveSubscriptionRef = useRef(null);
+  const clockTimerRef = useRef(null);
+
+  // Initialize time based on game type
+  useEffect(() => {
+    if (gameType === 'classical') {
+      setWhiteTime(0);
+      setBlackTime(0);
+    } else if (gameType === 'rapid') {
+      setWhiteTime(600);
+      setBlackTime(600);
+    } else if (gameType === 'blitz') {
+      setWhiteTime(300);
+      setBlackTime(300);
+    } else if (gameType === 'bullet') {
+      setWhiteTime(60);
+      setBlackTime(60);
+    }
+    
+    setIsWhiteTurn(playerColor === 'white');
+    setIsMyTurn(playerColor === 'white');
+  }, [gameType, playerColor]);
+
+  // Time management effect
+  useEffect(() => {
+    if (gameType === 'classical') return;
+    
+    if (clockTimerRef.current) {
+      clearInterval(clockTimerRef.current);
+      clockTimerRef.current = null;
+    }
+    
+    const shouldRunTimer = isConnected && 
+                          !gameStatus.includes('Game Over') && 
+                          isMyTurn;
+    
+    if (shouldRunTimer) {
+      clockTimerRef.current = setInterval(() => {
+        if (isWhiteTurn) {
+          setWhiteTime(prev => {
+            if (prev <= 1) {
+              clearInterval(clockTimerRef.current);
+              handleTimeOut('white');
+              return 0;
+            }
+            return prev - 1;
+          });
+        } else {
+          setBlackTime(prev => {
+            if (prev <= 1) {
+              clearInterval(clockTimerRef.current);
+              handleTimeOut('black');
+              return 0;
+            }
+            return prev - 1;
+          });
+        }
+      }, 1000);
+    }
+    
+    return () => {
+      if (clockTimerRef.current) {
+        clearInterval(clockTimerRef.current);
+      }
+    };
+  }, [isWhiteTurn, isConnected, gameStatus, isMyTurn, gameType]);
 
   // Listen for WebSocket messages
   useEffect(() => {
@@ -17,28 +97,30 @@ const GameContainer = ({ matchId, stompClient, isConnected, playerColor, initial
     moveSubscriptionRef.current = stompClient.subscribe(`/topic/moves/${matchId}`, (message) => {
       try {
         const moveData = JSON.parse(message.body);
-        console.log("Received opponent move:", moveData);
         
-        // CRITICAL: Check if this is OPPONENT'S move, not our own echo
-            if (moveData.playerColor !== playerColor) {
-                console.log("👤 Processing OPPONENT'S move - it's now MY turn!");
-                
-                // Set opponent move to trigger board update
-                setOpponentMove(moveData);
-                
-                // It's opponent's move, so now it's MY turn
-                setIsMyTurn(true);
-                setGameStatus("Your turn!");
-                
-                // Add move to history
-                if (moveData.move) {
-                    addMove(moveData.move);
-                }
-            } else {
-                console.log("👤 Ignoring OWN move (echo) - keeping isMyTurn=false");
-                // This is our own move echo - DON'T change isMyTurn
-                // We already set isMyTurn=false when we sent the move
-            }
+        // Check if this is OPPONENT'S move
+        if (moveData.playerColor !== playerColor) {
+          setOpponentMove(moveData);
+          setIsMyTurn(true);
+          setGameStatus("Your turn!");
+          
+          // Switch turn color based on opponent's move
+          const opponentColor = moveData.playerColor;
+          setIsWhiteTurn(opponentColor === 'black');
+          
+          // Update time from server if provided
+          if (moveData.whiteTimeRemaining !== undefined) {
+            setWhiteTime(moveData.whiteTimeRemaining);
+          }
+          if (moveData.blackTimeRemaining !== undefined) {
+            setBlackTime(moveData.blackTimeRemaining);
+          }
+          
+          // Add move to history
+          if (moveData.move) {
+            addMove(moveData.move);
+          }
+        }
       } catch (error) {
         console.error("Error parsing move data:", error);
       }
@@ -48,21 +130,29 @@ const GameContainer = ({ matchId, stompClient, isConnected, playerColor, initial
     stompClient.subscribe(`/topic/game-state/${matchId}`, (message) => {
       try {
         const state = JSON.parse(message.body);
-        console.log("Game state update:", state);
         
         if (state.isWhiteTurn !== undefined) {
-                // Determine if it's my turn based on my color
-                const isMyTurnNow = (playerColor === 'white') ? state.isWhiteTurn : !state.isWhiteTurn;
-                setIsMyTurn(isMyTurnNow);
-            }
+          setIsWhiteTurn(state.isWhiteTurn);
+          const isMyTurnNow = (playerColor === 'white') ? state.isWhiteTurn : !state.isWhiteTurn;
+          setIsMyTurn(isMyTurnNow);
+        }
+        
         if (state.status) {
           setGameStatus(state.status);
         }
         
+        if (state.whiteTimeRemaining !== undefined) {
+          setWhiteTime(state.whiteTimeRemaining);
+        }
+        if (state.blackTimeRemaining !== undefined) {
+          setBlackTime(state.blackTimeRemaining);
+        }
+        
         if (state.result) {
-          // Game ended
           setGameStatus(`Game Over: ${state.result}`);
-          alert(`Game Over: ${state.result}`);
+          if (clockTimerRef.current) {
+            clearInterval(clockTimerRef.current);
+          }
         }
       } catch (error) {
         console.error("Error parsing game state:", error);
@@ -74,11 +164,27 @@ const GameContainer = ({ matchId, stompClient, isConnected, playerColor, initial
         moveSubscriptionRef.current.unsubscribe();
       }
     };
-  }, [stompClient, isConnected, matchId]);
+  }, [stompClient, isConnected, matchId, playerColor]);
 
+  // Handle timeout
+  const handleTimeOut = (playerWhoLost) => {
+    if (clockTimerRef.current) {
+      clearInterval(clockTimerRef.current);
+      clockTimerRef.current = null;
+    }
+    
+    handleGameAction('timeout', { 
+      player: playerWhoLost,
+      whiteTimeRemaining: whiteTime,
+      blackTimeRemaining: blackTime
+    });
+    
+    alert(`${playerWhoLost === playerColor ? 'You' : 'Your opponent'} lost on time!`);
+  };
+
+  // Add move function
   const addMove = (move) => {
-    // Your existing move adding logic
-    if(move.piece !== move.piece.toLowerCase()) {
+    if (move.piece !== move.piece.toLowerCase()) {
       // White's move
       const newMove = {
         move: move,
@@ -117,21 +223,23 @@ const GameContainer = ({ matchId, stompClient, isConnected, playerColor, initial
       alert("It's not your turn!");
       return false;
     }
-
-    console.log("Sending move to server:", moveData);
     
-    // Send move via WebSocket
+    // Send move with current time
     stompClient.publish({
       destination: `/app/game/${matchId}/move`,
       body: JSON.stringify({
         ...moveData,
         playerColor: playerColor,
         timestamp: new Date().toISOString(),
-        matchId: matchId
+        matchId: matchId,
+        whiteTimeRemaining: whiteTime,
+        blackTimeRemaining: blackTime,
+        isWhiteTurn: (playerColor === 'white') ? false : true
       })
     });
 
     setIsMyTurn(false);
+    setIsWhiteTurn(playerColor === 'white' ? false : true);
     setGameStatus("Waiting for opponent...");
     return true;
   };
@@ -142,8 +250,6 @@ const GameContainer = ({ matchId, stompClient, isConnected, playerColor, initial
       alert("Not connected to server!");
       return;
     }
-
-    console.log(`Sending ${action} action:`, data);
     
     stompClient.publish({
       destination: `/app/game/${matchId}/${action}`,
@@ -151,7 +257,10 @@ const GameContainer = ({ matchId, stompClient, isConnected, playerColor, initial
         ...data,
         playerColor: playerColor,
         timestamp: new Date().toISOString(),
-        matchId: matchId
+        matchId: matchId,
+        whiteTimeRemaining: whiteTime,
+        blackTimeRemaining: blackTime,
+        isWhiteTurn: isWhiteTurn
       })
     });
   };
@@ -166,8 +275,11 @@ const GameContainer = ({ matchId, stompClient, isConnected, playerColor, initial
           </span>
           <span className="player-info">Playing as: <strong>{playerColor}</strong></span>
           <span className="turn-info">{gameStatus}</span>
-          <span className="turn-indicator">{isMyTurn ? '✓ Your turn' : '⏳ Opponent\'s turn'}</span>
+          <span className="turn-indicator">
+            {isMyTurn ? '✓ Your turn' : '⏳ Opponent\'s turn'}
+          </span>
         </div>
+        
         <div className="game-actions">
           <button 
             className="btn-action btn-resign"
@@ -191,11 +303,16 @@ const GameContainer = ({ matchId, stompClient, isConnected, playerColor, initial
       <BoardLayout 
         addMove={addMove}
         sendMove={sendMove}
-        opponentMove={opponentMove} // Pass opponent's move down
+        opponentMove={opponentMove}
         playerColor={playerColor}
         isMyTurn={isMyTurn}
         matchId={matchId}
         isConnected={isConnected}
+        // Pass time data
+        whiteTime={whiteTime}
+        blackTime={blackTime}
+        gameType={gameType}
+        isWhiteTurn={isWhiteTurn}
       />
       <GamePlayControlContainer 
         moves={moves}

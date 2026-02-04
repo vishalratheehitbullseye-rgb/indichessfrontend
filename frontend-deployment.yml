@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: indichessfrontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: indichessfrontend
+  template:
+    metadata:
+      labels:
+        app: indichessfrontend
+    spec:
+      containers:
+      - name: indichessfrontend
+        image: indichessfrontend:latest  # Replace with the actual image name
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: indichessfrontend
+spec:
+  selector:
+    app: indichessfrontend
+  ports:
+    - protocol: TCP
+      port: 80        # The port that will be exposed externally
+      targetPort: 80   # The port the container is listening on
+  type: LoadBalancer

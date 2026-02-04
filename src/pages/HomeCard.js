@@ -12,7 +12,8 @@ function HomeCard() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch("http://localhost:8080/home", {
+        //
+        const response = await fetch("http://localhost:8080/api/v1/user/home", {
           method: "GET",
           credentials: "include",
         });

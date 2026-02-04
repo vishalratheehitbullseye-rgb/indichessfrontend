@@ -1,24 +1,33 @@
 import React from "react";
 import { FaFlag } from "react-icons/fa";  // Use react-icons for flag icon (if needed)
 import "../component-styles/Player.css";
+import Clock from "./Clock";
 
-const Player = ({ username, rating, country, time }) => {
+
+const Player = ({ 
+  playerColor, 
+  time, 
+  gameType, 
+  isActive, 
+  playerName,
+  isCurrentPlayer 
+}) => {
   return (
-    <div className="player">
-      {/* Player Name and Rating */}
+    <div className={`player player-${playerColor} ${isActive ? 'active' : ''} ${isCurrentPlayer ? 'current-player' : ''}`}>
       <div className="player-info">
         <div className="player-name">
-          <span className="piece-icon">♟</span> {username} ({rating})
-        </div>
-        <div className="player-country">
-          <FaFlag size={20} /> {country} {/* Displaying flag icon and country */}
+          {playerName} ({playerColor})
+          {isCurrentPlayer && <span className="you-indicator"> (You)</span>}
         </div>
       </div>
-
-      {/* Timer */}
-      <div className="player-timer">
-        <span>{time}</span> {/* Display the timer */}
-      </div>
+      
+      {/* Clock component */}
+      <Clock 
+        time={time}
+        gameType={gameType}
+        isActive={isActive}
+        playerColor={playerColor}
+      />
     </div>
   );
 };
